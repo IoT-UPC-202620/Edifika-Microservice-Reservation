@@ -122,4 +122,40 @@ class ReservationControllerTest {
         verify(reservationQueryService, times(1))
                 .getAvailability(10L, date);
     }
+
+    private Reservation reservationOf(Long id, Long residentId) {
+        var commonArea = mock(CommonArea.class);
+        var reservation = mock(Reservation.class);
+        when(commonArea.getId()).thenReturn(10L);
+        when(reservation.getId()).thenReturn(id);
+        when(reservation.getResidentId()).thenReturn(residentId);
+        when(reservation.getCommonArea()).thenReturn(commonArea);
+        when(reservation.getReservationDate()).thenReturn(LocalDate.now());
+        when(reservation.getTimeSlot()).thenReturn(9);
+        when(reservation.getStatus()).thenReturn(EReservationStatus.ACTIVE);
+        return reservation;
+    }
+
+    @Test
+    void listReservationsWithoutFilterReturnsAll() {
+        var all = java.util.List.of(reservationOf(1L, 1L), reservationOf(2L, 2L));
+        when(reservationQueryService.handleGetAllReservations()).thenReturn(all);
+
+        var response = reservationController.getAllReservations(null);
+
+        assertEquals(2, response.getBody().size());
+        verify(reservationQueryService, never()).handleGetReservationsByResidentId(any());
+    }
+
+    @Test
+    void listReservationsFilteredByResident() {
+        var mine = java.util.List.of(reservationOf(2L, 2L));
+        when(reservationQueryService.handleGetReservationsByResidentId(2L)).thenReturn(mine);
+
+        var response = reservationController.getAllReservations(2L);
+
+        assertEquals(1, response.getBody().size());
+        assertEquals(2L, response.getBody().get(0).residentId());
+        verify(reservationQueryService, never()).handleGetAllReservations();
+    }
 }

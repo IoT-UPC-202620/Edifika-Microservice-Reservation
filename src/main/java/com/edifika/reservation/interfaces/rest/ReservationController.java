@@ -56,9 +56,16 @@ public class ReservationController {
         return ResponseEntity.ok(availability);
     }
 
+    /**
+     * Sin parámetros devuelve todas (panel web de administración). Con {@code residentId}
+     * devuelve solo las de ese residente (app móvil).
+     */
     @GetMapping
-    public ResponseEntity<List<ReservationResource>> getAllReservations() {
-        List<Reservation> reservations = reservationQueryService.handleGetAllReservations();
+    public ResponseEntity<List<ReservationResource>> getAllReservations(
+            @RequestParam(required = false) Long residentId) {
+        List<Reservation> reservations = residentId == null
+                ? reservationQueryService.handleGetAllReservations()
+                : reservationQueryService.handleGetReservationsByResidentId(residentId);
         List<ReservationResource> resources = reservations.stream()
                 .map(ReservationResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());

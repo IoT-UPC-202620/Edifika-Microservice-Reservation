@@ -57,4 +57,10 @@ public class ReservationQueryServiceImpl implements ReservationQueryService {
     public List<Reservation> handleGetAllReservations() {
         return reservationRepository.findAll();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Reservation> handleGetReservationsByResidentId(Long residentId) {
+        return reservationRepository.findByResidentId(residentId);
+    }
 }

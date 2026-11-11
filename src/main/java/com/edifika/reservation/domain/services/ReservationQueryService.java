@@ -8,4 +8,5 @@ import java.util.Map;
 public interface ReservationQueryService {
     Map<Integer, Integer> getAvailability(Long commonAreaId, LocalDate date);
     List<Reservation> handleGetAllReservations();
+    List<Reservation> handleGetReservationsByResidentId(Long residentId);
 }
